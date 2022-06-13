@@ -13,12 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from atexit import register
 from django.contrib import admin
 from django.urls import path
 from women.views import *
+from rest_framework import routers
+
+router = routers.SimpleRouter()
+router = register(r'women', WomenViewSet)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/womenlist/', WomenViewSet.as_view({'get' : 'list'})),# связываем маршруты с классом представлений WomenAPIList
-    path('api/v1/womenlist/<int:pk>/', WomenViewSet.as_view({'put' : 'update'})),# <int:pk> будет показывать какую запись собираемся поменять   
+    path('api/v1/', include(router.urls)),#http://127.0.0.1:8000/api/v1/women
+    #path('api/v1/womenlist/', WomenViewSet.as_view({'get' : 'list'})),# связываем маршруты с классом представлений WomenAPIList
+    #path('api/v1/womenlist/<int:pk>/', WomenViewSet.as_view({'put' : 'update'})),# <int:pk> будет показывать какую запись собираемся поменять   
 ]
