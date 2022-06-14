@@ -1,14 +1,43 @@
+from django.forms import model_to_dict
 from django.shortcuts import render
 from rest_framework import generics, viewsets
-from .models import Women
-from .serializers import WomenSerializer
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.forms import model_to_dict
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+from .models import Women, Category
+from .serializers import WomenSerializer
+
 
 class WomenViewSet(viewsets.ModelViewSet):
-    queryset = Women.objects.all()
+    queryset = Women.objects.all()# eсли убираем queryset, то в urls router.register добавляем basename = ...
     serializer_class = WomenSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')# получаем ключ pk из колекции kwargs c помощью get 'pk'
+
+        if not pk: # если такого ключа нет, то возвращаем список записей
+          return Women.objects.all()[:3]
+
+        return Women.objects.filter(pk=pk) #если проверка не прошла вернем конкретную запись т.к. pk=pk
+  
+
+#декоратор actions оборачивает модели women в категории добавляет новые нестандартные маршруты в ViewSet
+# detail = False дает возможность показать все категории, но не 1 конкретную
+    @action(methods=['get'], detail = True)
+    def category(self, requests, pk=None):
+        cats = Category.objects.get(pk=pk)
+        return Response({'cats' : cats.name})
+
+
+
+
+
+
+
+
+
+
+
 
 # class WomenAPIList (generics.ListCreateAPIView): # Возвращает список записей по GET-запросу и добавляет новые записи по POST-запросу
 #     queryset = Women.objects.all()#ссылается на список записей возвращ клиенту
