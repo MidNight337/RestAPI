@@ -1,3 +1,4 @@
+from email.policy import default
 import io
 
 from rest_framework import serializers
@@ -12,6 +13,8 @@ from rest_framework.parsers import JSONParser
 #        self.content = content
 
 class WomenSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default = serializers.CurrentUserDefault())
+    
     class Meta:
         model = Women # тут переменная model ссылается на Объект Women
         fields = '__all__' # Указываем ВСЕ поля которые будут возвращаться клиенту
