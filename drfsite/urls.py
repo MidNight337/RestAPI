@@ -15,35 +15,46 @@ Including another URLconf
 """
 from atexit import register
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from women.views import *
 from rest_framework import routers
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+
+
 
 
 #routes - это список наших маршрутов
-class MyCustomRouter(routers.SimpleRouter): #создание собственного роутера, наследуемся от самого простого класса роутеров
-    routes = [
-        routers.Route(url=r'^{prefix}$', # url - это щаблон наших маршрутов
-                      mapping={'get': 'list'}, # связывает тип запроса с соответствующим методом viewset'a
-                      name ='{basename}-list', # определяет название маршрута
-                      detail = False, # False - покажет список, True - покажет отдельную запись
-                      initkwargs={'suffix' : 'List'}), #отдельные аргументы, которые будут передаваться при срабатывании маршрута
-    #Считался список статей
-        routers.Route(url=r'^{prefix}/{lookup}$',
-                      mapping={'get':'retrieve'},
-                      name ='{basename}-detail',
-                      detail=True,
-                      initkwargs = {'suffix' : 'Detail'})
-    #Читает конкретную статью по ее идентификатору
-    ]
+# class MyCustomRouter(routers.SimpleRouter): #создание собственного роутера, наследуемся от самого простого класса роутеров
+#     routes = [
+#         routers.Route(url=r'^{prefix}$', # url - это щаблон наших маршрутов
+#                       mapping={'get': 'list'}, # связывает тип запроса с соответствующим методом viewset'a
+#                       name ='{basename}-list', # определяет название маршрута
+#                       detail = False, # False - покажет список, True - покажет отдельную запись
+#                       initkwargs={'suffix' : 'List'}), #отдельные аргументы, которые будут передаваться при срабатывании маршрута
+#     #Считался список статей
+#         routers.Route(url=r'^{prefix}/{lookup}$',
+#                       mapping={'get':'retrieve'},
+#                       name ='{basename}-detail',
+#                       detail=True,
+#                       initkwargs = {'suffix' : 'Detail'})
+#     #Читает конкретную статью по ее идентификатору
+#     ]
 
-router = MyCustomRouter()
-router.register(r'women', WomenViewSet, basename= 'women')
-print(router.urls)
+# router = MyCustomRouter()
+# router.register(r'women', WomenViewSet, basename= 'women')
+# print(router.urls)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
+    path('api/v1/drf-auth/', include('rest_framework.urls')),
+    path('api/v1/women', WomenAPIList.as_view()),
+    path('api/v1/women/<int:pk>/', WomenAPIUpdate.as_view()),
+    path('api/v1/womendelete/<int:pk>/', WomenAPIDestroy.as_view()),
+    path('api/v1/auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
+    path('api/v1/token/', TokenObtainPairView.as_view(), name = 'token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name = 'token_refresh'),
+    path('api/v1/token/verify', TokenVerifyView.as_view(), name = 'token_verify'),
 ]    
     #http://127.0.0.1:8000/api/v1/women
     #path('api/v1/womenlist/', WomenViewSet.as_view({'get' : 'list'})),# связываем маршруты с классом представлений WomenAPIList
