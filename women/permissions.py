@@ -10,7 +10,7 @@ class IsAdminOrReadOnly(permissions.BasePermission): # создание клас
         return bool(request.user and request.user.is_staff) # проверка что пользователь администратор
         
 class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, obj): #делаем разрешение на уровне объекта
         if request.method in permissions.SAFE_METHODS:
             return True
         

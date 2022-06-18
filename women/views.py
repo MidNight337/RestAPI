@@ -7,18 +7,26 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from .models import Women, Category
 from .serializers import WomenSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from rest_framework.pagination import PageNumberPagination
+
+class WomenAPIListPagination(PageNumberPagination):
+  page_size = 3
+  page_size_query_param = 'page_size'
+  max_page_size = 10000
+
 
 class WomenAPIList(generics.ListCreateAPIView):
   queryset = Women.objects.all()
   serializer_class = WomenSerializer
   permission_classes =(IsAuthenticatedOrReadOnly, )
+  pagination_class = WomenAPIListPagination
 
 class WomenAPIUpdate(generics.RetrieveUpdateAPIView):
   queryset = Women.objects.all()
   serializer_class = WomenSerializer
-  permission_classes =(IsOwnerOrReadOnly, )
+  permission_classes =(IsAuthenticated, )
 
 class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
   queryset = Women.objects.all()
@@ -49,17 +57,6 @@ class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
 #     def category(self, requests, pk=None):
 #         cats = Category.objects.get(pk=pk)
 #         return Response({'cats' : cats.name})
-
-
-
-
-
-
-
-
-
-
-
 
 # # class WomenAPIList (generics.ListCreateAPIView): # Возвращает список записей по GET-запросу и добавляет новые записи по POST-запросу
 # #     queryset = Women.objects.all()#ссылается на список записей возвращ клиенту
